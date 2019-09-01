@@ -1,9 +1,9 @@
-import Interpreter
+import run
 
 while True:
 	text = input('cibttelt > ')
 	if text.strip() == "": continue
-	result, error = Interpreter.run('<testfile>', text)
+	result, error = run.run('<testfile>', text)
 
 	if error:
 		print(error.printStr())

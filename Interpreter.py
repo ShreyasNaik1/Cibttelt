@@ -2,83 +2,54 @@
 # IMPORTS
 #######################################
 
-from string_with_arrows import *
+from string_with_arrows import string_with_arrows  
 
 import os
-import math
 
 import sys
 
 # sys.path.insert(0, './Errors')
-# from errors import *
-# from InvalidSyntaxError import *
-# from ExpectedCharError import *
-# from IllegalCharError import *
-# from RTError import *
+# from import errors  
+# from import InvalidSyntaxError  
+# from import ExpectedCharError  
+# from import IllegalCharError  
+# from import RTError  
 
 sys.path.insert(0, './Nodes')
-from BinTreeNode import *
-from BreakNode import *
-from CallNode import * 
-from ContinueNode import *
-from ForNode import *
-from FuncDefNode import *
-from IfNode import *
-from ListNode import *
-from NumNode import *
-from ReturnNode import *
-from StrNode import *
-from UnaryOperationNode import *
-from VarAccessNode import *
-from VarAssignNode import *
-from WhileNode import *
+from BinTreeNode import BinTreeNode  
+from BreakNode import BreakNode  
+from CallNode import CallNode   
+from ContinueNode import ContinueNode  
+from ForNode import ForNode   
+from FuncDefNode import FuncDefNode  
+from IfNode import IfNode   
+from ListNode import ListNode   
+from NumNode import NumNode  
+from ReturnNode import ReturnNode  
+from StrNode import StrNode  
+from UnaryOperationNode import UnaryOperationNode  
+from VarAccessNode import VarAccessNode  
+from VarAssignNode import VarAssignNode  
+from WhileNode import WhileNode  
 
 
-from constants import *
-from Positions import *
+from constants import * 
+from Positions import Position 
 from Tokens import *
-from Lexer import *
-from Parser import *
-from RTResult import *
-from Context import *
-from SymbolTable import *
+from Lexer import Lexer 
+from Parser import Parser
+from RTResult import RTResult
+from Context import Context  
 
 
 sys.path.insert(0, './Value')
-from Value import *
-from List import *
-from String import *
-from Number import *
+from Value import Value 
+from List  import List 
+from String  import String
+from Number  import Number
 
 sys.path.insert(0, './Value/BaseFunction')
-from BaseFunction import *
-from Function import * 
-from BuiltInFunction import * 
-
-
-
-Number.null = Number(0)
-Number.false = "false"
-Number.true = "true"
-Number.math_PI = Number(math.pi)
-
-BuiltInFunction.print       = BuiltInFunction("print")
-BuiltInFunction.printRet    = BuiltInFunction("printRet")
-BuiltInFunction.input       = BuiltInFunction("input")
-BuiltInFunction.inpInt   	= BuiltInFunction("inpInt")
-BuiltInFunction.clear       = BuiltInFunction("clear")
-BuiltInFunction.isNum   	= BuiltInFunction("isNum")
-BuiltInFunction.isStr  	    = BuiltInFunction("isStr")
-BuiltInFunction.isList      = BuiltInFunction("isList")
-BuiltInFunction.isFunc 		= BuiltInFunction("isFunc")
-BuiltInFunction.append      = BuiltInFunction("append")
-BuiltInFunction.pop         = BuiltInFunction("pop")
-BuiltInFunction.extend      = BuiltInFunction("extend")
-BuiltInFunction.len			= BuiltInFunction("len")
-BuiltInFunction.run			= BuiltInFunction("run")
-
-
-
+from BaseFunction import BaseFunction
 
 class Interpreter:
 	def visit(self, node, context):
@@ -165,9 +136,9 @@ class Interpreter:
 			result, error = left.compareLTE(right)
 		elif node.oper.type == GTE_T:
 			result, error = left.compareGTE(right)
-		elif node.oper.sameElem(KEYWORD_T, 'AND'):
+		elif node.oper.sameElem(KEYWORD_T, 'and'):
 			result, error = left.andBool(right)
-		elif node.oper.sameElem(KEYWORD_T, 'OR'):
+		elif node.oper.sameElem(KEYWORD_T, 'or'):
 			result, error = left.orBool(right)
 
 		if error:
@@ -184,7 +155,7 @@ class Interpreter:
 
 		if node.oper.type == MINUS_T:
 			number, error = number.mult(Number(-1))
-		elif node.oper.sameElem(KEYWORD_T, 'NOT'):
+		elif node.oper.sameElem(KEYWORD_T, 'not'):
 			number, error = number.notBool()
 
 		if error:
@@ -332,39 +303,33 @@ class Interpreter:
 
 
 
-GlobalSymTable = SymbolTable()
-GlobalSymTable.set("NULL", Number.null)
-GlobalSymTable.set("FALSE", Number.false)
-GlobalSymTable.set("TRUE", Number.true)
-GlobalSymTable.set("MATH_PI", Number.math_PI)
-GlobalSymTable.set("PRINT", BuiltInFunction.print)
-GlobalSymTable.set("PRINT_RET", BuiltInFunction.printRet)
-GlobalSymTable.set("INPUT", BuiltInFunction.input)
-GlobalSymTable.set("INPUT_INT", BuiltInFunction.inpInt)
-GlobalSymTable.set("CLEAR", BuiltInFunction.clear)
-GlobalSymTable.set("CLS", BuiltInFunction.clear)
-GlobalSymTable.set("IS_NUM", BuiltInFunction.isNum)
-GlobalSymTable.set("IS_STR", BuiltInFunction.isStr)
-GlobalSymTable.set("IS_LIST", BuiltInFunction.isList)
-GlobalSymTable.set("IS_FUN", BuiltInFunction.isFunc)
-GlobalSymTable.set("APPEND", BuiltInFunction.append)
-GlobalSymTable.set("POP", BuiltInFunction.pop)
-GlobalSymTable.set("EXTEND", BuiltInFunction.extend)
-GlobalSymTable.set("LEN", BuiltInFunction.len)
-GlobalSymTable.set("RUN", BuiltInFunction.run)
+class Function(BaseFunction):
+	def __init__(self, name, body, argName, shouldReturn):
+		super().__init__(name)
+		self.body = body
+		self.argName = argName
+		self.shouldReturn = shouldReturn
 
-def run(fname, text):
-	lexer = Lexer(fname, text)
-	tokens, error = lexer.genTok()
-	if error: return None, error
-	
-	parser = Parser(tokens)
-	bTree = parser.parse()
-	if bTree.error: return None, bTree.error
+	def execute(self, args):
+		res = RTResult()
+		interpreter = Interpreter()
+		execCtX = self.GenNewContext()
 
-	interpreter = Interpreter()
-	context = Context('<program>')
-	context.symbTable = GlobalSymTable
-	result = interpreter.visit(bTree.node, context)
+		res.register(self.carefulPopulateArg(self.argName, args, execCtX))
+		if res.shouldReturn(): return res
 
-	return result.value, result.error
+		value = res.register(interpreter.visit(self.body, execCtX))
+		if res.shouldReturn() and res.returnVal == None: return res
+
+		retVal = (value if self.shouldReturn else None) or res.returnVal or Number.null
+		return res.success(retVal)
+
+	def copy(self):
+		copy = Function(self.name, self.body, self.argName, self.shouldReturn)
+		copy.setContext(self.context)
+		copy.setPosition(self.startPos, self.endPos)
+		return copy
+
+	def __repr__(self):
+		return "<function {self.name}>"
+

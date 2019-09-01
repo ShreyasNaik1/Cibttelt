@@ -13,6 +13,7 @@ from Context import *
 from RTResult import *
 from Interpreter import *
 from SymbolTable import *
+from BaseFunction import BaseFunction
 
 sys.path.insert(0, '../' + '../' + './Errors')
 from errors import *

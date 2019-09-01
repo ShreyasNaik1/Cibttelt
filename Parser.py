@@ -162,7 +162,7 @@ class Parser:
 	def expr(self):
 		res = ParseResult()
 
-		if self.currTok.sameElem(KEYWORD_T, 'VAR'):
+		if self.currTok.sameElem(KEYWORD_T, 'var'):
 			res.RegisterNextInp()
 			self.NextInput()
 
@@ -188,12 +188,12 @@ class Parser:
 			if res.error: return res
 			return res.success(VarAssignNode(varName, expr))
 
-		node = res.register(self.BinaryTree(self.ComputeExpression, ((KEYWORD_T, 'AND'), (KEYWORD_T, 'OR'))))
+		node = res.register(self.BinaryTree(self.ComputeExpression, ((KEYWORD_T, 'and'), (KEYWORD_T, 'or'))))
 
 		if res.error:
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'"
+				"Expected 'var', 'if', 'for', 'while', 'fun', int, float, identifier, '+', '-', '(', '[' or 'not'"
 			))
 
 		return res.success(node)
@@ -215,7 +215,7 @@ class Parser:
 		if res.error:
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected int, float, identifier, '+', '-', '(', '[', 'IF', 'FOR', 'WHILE', 'FUN' or 'NOT'"
+				"Expected int, float, identifier, '+', '-', '(', '[', 'if', 'for', 'while', 'fun', or 'not'"
 			))
 
 		return res.success(node)
@@ -260,7 +260,7 @@ class Parser:
 				if res.error:
 					return res.failure(InvalidSyntaxError(
 						self.currTok.startPos, self.currTok.endPos,
-						"Expected ')', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'"
+						"Expected ')', 'var', 'if', 'for', 'while', 'fun', int, float, identifier, '+', '-', '(', '[' or 'not'"
 					))
 
 				while self.currTok.type == COMMA_T:
@@ -320,29 +320,29 @@ class Parser:
 			if res.error: return res
 			return res.success(ListExpr)
 		
-		elif token.sameElem(KEYWORD_T, 'IF'):
+		elif token.sameElem(KEYWORD_T, 'if'):
 			IfExpr = res.register(self.IfExpr())
 			if res.error: return res
 			return res.success(IfExpr)
 
-		elif token.sameElem(KEYWORD_T, 'FOR'):
+		elif token.sameElem(KEYWORD_T, 'for'):
 			ForExpr = res.register(self.ForExpr())
 			if res.error: return res
 			return res.success(ForExpr)
 
-		elif token.sameElem(KEYWORD_T, 'WHILE'):
+		elif token.sameElem(KEYWORD_T, 'while'):
 			WhileExpr = res.register(self.WhileExpr())
 			if res.error: return res
 			return res.success(WhileExpr)
 
-		elif token.sameElem(KEYWORD_T, 'FUN'):
+		elif token.sameElem(KEYWORD_T, 'fun'):
 			FuncDef = res.register(self.FuncDef())
 			if res.error: return res
 			return res.success(FuncDef)
 
 		return res.failure(InvalidSyntaxError(
 			token.startPos, token.endPos,
-			"Expected int, float, identifier, '+', '-', '(', '[', IF', 'FOR', 'WHILE', 'FUN'"
+			"Expected int, float, identifier, '+', '-', '(', '[', 'if', 'for', 'while', 'fun'"
 		))
 
 	def ListExpr(self):
@@ -367,7 +367,7 @@ class Parser:
 			if res.error:
 				return res.failure(InvalidSyntaxError(
 					self.currTok.startPos, self.currTok.endPos,
-					"Expected ']', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'"
+					"Expected ']', 'var', 'if', 'for', 'while', 'fun', int, float, identifier, '+', '-', '(', '[' or 'not'"
 				))
 
 			while self.currTok.type == COMMA_T:
@@ -394,19 +394,19 @@ class Parser:
 
 	def IfExpr(self):
 		res = ParseResult()
-		allCases = res.register(self.CasesOfIf('IF'))
+		allCases = res.register(self.CasesOfIf('if'))
 		if res.error: return res
 		cases, elseCase = allCases
 		return res.success(IfNode(cases, elseCase))
 
 	def ElifCaseOfIf(self):
-		return self.CasesOfIf('ELIF')
+		return self.CasesOfIf('elif')
 		
 	def ElseCaseOfIf(self):
 		res = ParseResult()
 		elseCase = None
 
-		if self.currTok.sameElem(KEYWORD_T, 'ELSE'):
+		if self.currTok.sameElem(KEYWORD_T, 'else'):
 			res.RegisterNextInp()
 			self.NextInput()
 
@@ -418,13 +418,13 @@ class Parser:
 				if res.error: return res
 				elseCase = (statements, True)
 
-				if self.currTok.sameElem(KEYWORD_T, 'END'):
+				if self.currTok.sameElem(KEYWORD_T, 'end'):
 					res.RegisterNextInp()
 					self.NextInput()
 				else:
 					return res.failure(InvalidSyntaxError(
 						self.currTok.startPos, self.currTok.endPos,
-						"Expected 'END'"
+						"Expected 'end'"
 					))
 			else:
 				expr = res.register(self.statement())
@@ -437,7 +437,7 @@ class Parser:
 		res = ParseResult()
 		cases, elseCase = [], None
 
-		if self.currTok.sameElem(KEYWORD_T, 'ELIF'):
+		if self.currTok.sameElem(KEYWORD_T, 'elif'):
 			allCases = res.register(self.ElifCaseOfIf())
 			if res.error: return res
 			cases, elseCase = allCases
@@ -464,10 +464,10 @@ class Parser:
 		condition = res.register(self.expr())
 		if res.error: return res
 
-		if not self.currTok.sameElem(KEYWORD_T, 'THEN'):
+		if not self.currTok.sameElem(KEYWORD_T, 'then'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'THEN'"
+				"Expected 'then'"
 			))
 
 		res.RegisterNextInp()
@@ -481,7 +481,7 @@ class Parser:
 			if res.error: return res
 			cases.append((condition, statements, True))
 
-			if self.currTok.sameElem(KEYWORD_T, 'END'):
+			if self.currTok.sameElem(KEYWORD_T, 'end'):
 				res.RegisterNextInp()
 				self.NextInput()
 			else:
@@ -504,7 +504,7 @@ class Parser:
 	def ForExpr(self):
 		res = ParseResult()
 
-		if not self.currTok.sameElem(KEYWORD_T, 'FOR'):
+		if not self.currTok.sameElem(KEYWORD_T, 'for'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
 				"Expected 'FOR'"
@@ -535,10 +535,10 @@ class Parser:
 		startVal = res.register(self.expr())
 		if res.error: return res
 
-		if not self.currTok.sameElem(KEYWORD_T, 'TO'):
+		if not self.currTok.sameElem(KEYWORD_T, 'to'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'TO'"
+				"Expected 'to'"
 			))
 		
 		res.RegisterNextInp()
@@ -547,7 +547,7 @@ class Parser:
 		endVal = res.register(self.expr())
 		if res.error: return res
 
-		if self.currTok.sameElem(KEYWORD_T, 'STEP'):
+		if self.currTok.sameElem(KEYWORD_T, 'step'):
 			res.RegisterNextInp()
 			self.NextInput()
 
@@ -556,10 +556,10 @@ class Parser:
 		else:
 			stepVal = None
 
-		if not self.currTok.sameElem(KEYWORD_T, 'THEN'):
+		if not self.currTok.sameElem(KEYWORD_T, 'then'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'THEN'"
+				"Expected 'then'"
 			))
 
 		res.RegisterNextInp()
@@ -572,10 +572,10 @@ class Parser:
 			body = res.register(self.statements())
 			if res.error: return res
 
-			if not self.currTok.sameElem(KEYWORD_T, 'END'):
+			if not self.currTok.sameElem(KEYWORD_T, 'end'):
 				return res.failure(InvalidSyntaxError(
 					self.currTok.startPos, self.currTok.endPos,
-					"Expected 'END'"
+					"Expected 'end'"
 				))
 
 			res.RegisterNextInp()
@@ -591,10 +591,10 @@ class Parser:
 	def WhileExpr(self):
 		res = ParseResult()
 
-		if not self.currTok.sameElem(KEYWORD_T, 'WHILE'):
+		if not self.currTok.sameElem(KEYWORD_T, 'while'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'WHILE'"
+				"Expected 'while'"
 			))
 
 		res.RegisterNextInp()
@@ -603,10 +603,10 @@ class Parser:
 		condition = res.register(self.expr())
 		if res.error: return res
 
-		if not self.currTok.sameElem(KEYWORD_T, 'THEN'):
+		if not self.currTok.sameElem(KEYWORD_T, 'then'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'THEN'"
+				"Expected 'then'"
 			))
 
 		res.RegisterNextInp()
@@ -619,10 +619,10 @@ class Parser:
 			body = res.register(self.statements())
 			if res.error: return res
 
-			if not self.currTok.sameElem(KEYWORD_T, 'END'):
+			if not self.currTok.sameElem(KEYWORD_T, 'end'):
 				return res.failure(InvalidSyntaxError(
 					self.currTok.startPos, self.currTok.endPos,
-					"Expected 'END'"
+					"Expected 'end'"
 				))
 
 			res.RegisterNextInp()
@@ -638,10 +638,10 @@ class Parser:
 	def FuncDef(self):
 		res = ParseResult()
 
-		if not self.currTok.sameElem(KEYWORD_T, 'FUN'):
+		if not self.currTok.sameElem(KEYWORD_T, 'fun'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'FUN'"
+				"Expected 'fun'"
 			))
 
 		res.RegisterNextInp()
@@ -719,7 +719,7 @@ class Parser:
 		if self.currTok.type != NEWLINE_T:
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected '->' or NEWLINE"
+				"Expected '->' or newline"
 			))
 
 		res.RegisterNextInp()
@@ -728,10 +728,10 @@ class Parser:
 		body = res.register(self.statements())
 		if res.error: return res
 
-		if not self.currTok.sameElem(KEYWORD_T, 'END'):
+		if not self.currTok.sameElem(KEYWORD_T, 'end'):
 			return res.failure(InvalidSyntaxError(
 				self.currTok.startPos, self.currTok.endPos,
-				"Expected 'END'"
+				"Expected 'end'"
 			))
 
 		res.RegisterNextInp()
